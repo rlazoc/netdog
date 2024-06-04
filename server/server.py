@@ -1,6 +1,8 @@
 import socket
 import logging
 import threading
+import argparse
+
 
 def start_tcp_server(host, port):
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -39,10 +41,22 @@ def start_udp_server(host, port):
 
 
 if __name__ == "__main__":
-    host, port = '0.0.0.0', 9999
-    tcp_thread = threading.Thread(target=start_tcp_server, args=(host, port))
-    udp_thread = threading.Thread(target=start_udp_server, args=(host, port))
-    tcp_thread.start()
-    udp_thread.start()
-    tcp_thread.join()
-    udp_thread.join()
+    parser = argparse.ArgumentParser(description='Netdog Server')
+    parser.add_argument('--host', type=str, default='0.0.0.0', help='Host to bind the server')
+    parser.add_argument('--port', type=int, default=9999, help='Port to bind the server')
+    parser.add_argument('--protocol', type=str, choices=['TCP', 'UDP', 'BOTH'], default='BOTH', help='Protocol to use (TCP, UDP, or BOTH)')
+    args = parser.parse_args()
+
+    if args.protocol in ['TCP', 'BOTH']:
+        tcp_thread = threading.Thread(target=start_tcp_server, args=(args.host, args.port))
+        tcp_thread.start()
+    if args.protocol in ['UDP', 'BOTH']:
+        udp_thread = threading.Thread(target=start_udp_server, args=(args.host, args.port))
+        udp_thread.start()
+    if args.protocol == 'BOTH':
+        tcp_thread.join()
+        udp_thread.join()
+    elif args.protocol == 'TCP':
+        tcp_thread.join()
+    elif args.protocol == 'UDP':
+        udp_thread.join()

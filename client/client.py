@@ -1,5 +1,6 @@
 import socket
 import logging
+import argparse
 
 
 def start_tcp_client(host, port):
@@ -38,11 +39,13 @@ def start_udp_client(host, port):
 
 
 if __name__ == "__main__":
-    host, port = '127.0.0.1', 9999
-    protocol = input("Choose protocol (TCP/UDP): ").strip().upper()
-    if protocol == 'TCP':
-        start_tcp_client(host, port)
-    elif protocol == 'UDP':
-        start_udp_client(host, port)
-    else:
-        print("Invalid protocol. Please choose either TCP or UDP.")
+    parser = argparse.ArgumentParser(description='Netdog Client')
+    parser.add_argument('--host', type=str, default='127.0.0.1', help='Server host to connect to')
+    parser.add_argument('--port', type=int, default=9999, help='Server port to connect to')
+    parser.add_argument('--protocol', type=str, choices=['TCP', 'UDP'], required=True, help='Protocol to use (TCP or UDP)')
+    args = parser.parse_args()
+
+    if args.protocol == 'TCP':
+        start_tcp_client(args.host, args.port)
+    elif args.protocol == 'UDP':
+        start_udp_client(args.host, args.port)
